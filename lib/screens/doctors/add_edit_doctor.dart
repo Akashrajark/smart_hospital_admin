@@ -45,7 +45,7 @@ class _AddEditDoctorScreenState extends State<AddEditDoctorScreen> {
       experienceController.text = widget.doctorData!['experience']?.toString() ?? '';
       qualificationController.text = widget.doctorData!['qualification'] ?? '';
       gender = widget.doctorData!['gender'] ?? 'male';
-      dob = DateTime.tryParse(widget.doctorData!['dob'] ?? '');
+      dob = DateTime.tryParse(widget.doctorData!['dob']);
     }
     super.initState();
   }
@@ -87,7 +87,7 @@ class _AddEditDoctorScreenState extends State<AddEditDoctorScreen> {
                 CustomTextFormField(
                   labelText: "Password",
                   controller: passwordController,
-                  validator: passwordValidator,
+                  validator: widget.doctorData != null ? null : passwordValidator,
                 ),
                 const SizedBox(height: 15),
                 Text("Full Name", style: Theme.of(context).textTheme.bodyLarge),
@@ -130,6 +130,7 @@ class _AddEditDoctorScreenState extends State<AddEditDoctorScreen> {
                 Text("Date of Birth", style: Theme.of(context).textTheme.bodyLarge),
                 const SizedBox(height: 5),
                 CustomDatePicker(
+                  selectedDate: dob,
                   isRequired: true,
                   onPick: (pick) {
                     dob = pick;
@@ -166,7 +167,7 @@ class _AddEditDoctorScreenState extends State<AddEditDoctorScreen> {
                     label: 'Save',
                     inverse: true,
                     onPressed: () {
-                      if (_formKey.currentState!.validate() && doctorProfileImage != null) {
+                      if (_formKey.currentState!.validate()) {
                         Map<String, dynamic> doctorData = {
                           'full_name': fullNameController.text.trim(),
                           'email': emailController.text.trim(),

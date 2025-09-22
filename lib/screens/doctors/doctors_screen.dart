@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hospital_admin/common_widgets/custom_seearch_filter.dart';
@@ -19,8 +20,9 @@ class DoctorsScreen extends StatefulWidget {
 class _DoctorsScreenState extends State<DoctorsScreen> {
   List<Map<String, dynamic>> doctors = [];
   final DoctorsBloc _doctorsBloc = DoctorsBloc();
+  String status = 'active';
 
-  Map<String, dynamic> params = {'query': null, 'range_start': 0, 'range_end': 24};
+  Map<String, dynamic> params = {'query': null, 'range_start': 0, 'range_end': 24, 'status': 'active'};
 
   final ScrollController _scrollController = ScrollController();
   bool _isLoadingMore = false;
@@ -149,6 +151,18 @@ class _DoctorsScreenState extends State<DoctorsScreen> {
                     getDoctors();
                   },
                   onFilter: () {},
+                ),
+                const SizedBox(height: 16),
+                CupertinoSlidingSegmentedControl(
+                  groupValue: status,
+                  children: {'active': Text('Active '), 'blocked': Text('Blocked')},
+                  onValueChanged: (value) {
+                    setState(() {
+                      status = value!;
+                      params['status'] = value;
+                    });
+                    getDoctors();
+                  },
                 ),
                 const SizedBox(height: 16),
                 if (state is DoctorsLoadingState && !_isLoadingMore)

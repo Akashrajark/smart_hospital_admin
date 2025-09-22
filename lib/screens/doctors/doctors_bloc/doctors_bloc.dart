@@ -25,6 +25,9 @@ class DoctorsBloc extends Bloc<DoctorsEvent, DoctorsState> {
             // If it's not a valid int, use it for name query
             query = query.or('full_name.ilike.%${event.params['query']}%, phone.ilike.%${event.params['query']}%');
           }
+          if (event.params['status'] != null && event.params['status'].toString().isNotEmpty) {
+            query = query.eq('status', event.params['status']);
+          }
 
           List<Map<String, dynamic>> result;
           int? count;
@@ -43,7 +46,7 @@ class DoctorsBloc extends Bloc<DoctorsEvent, DoctorsState> {
             AdminUserAttributes(
               email: event.doctorDetails['email'],
               password: event.doctorDetails['password'],
-              userMetadata: {'role': 'doctor'},
+              appMetadata: {'role': 'doctor'},
               emailConfirm: true,
             ),
           );
@@ -62,14 +65,19 @@ class DoctorsBloc extends Bloc<DoctorsEvent, DoctorsState> {
           await table.insert(event.doctorDetails);
           emit(DoctorsSuccessState());
         } else if (event is EditDoctorEvent) {
-          Supabase.instance.client.auth.admin.updateUserById(
-            event.doctorId,
-            attributes: AdminUserAttributes(
-              email: event.doctorDetails['email'],
-              password: event.doctorDetails['password'],
-              userMetadata: {'role': 'doctor'},
-            ),
-          );
+          if (event.doctorDetails['password'] != null &&
+              event.doctorDetails['password'].toString().isNotEmpty &&
+              event.doctorDetails['email'] != null &&
+              event.doctorDetails['email'].toString().isNotEmpty) {
+            Supabase.instance.client.auth.admin.updateUserById(
+              event.doctorId,
+              attributes: AdminUserAttributes(
+                email: event.doctorDetails['email'],
+                password: event.doctorDetails['password'],
+                appMetadata: {'role': 'doctor'},
+              ),
+            );
+          }
 
           if (event.doctorDetails['image'] != null) {
             event.doctorDetails['image_url'] = await uploadFile(
@@ -81,7 +89,7 @@ class DoctorsBloc extends Bloc<DoctorsEvent, DoctorsState> {
             event.doctorDetails.remove('image_name');
           }
           event.doctorDetails.remove('password');
-          await table.update(event.doctorDetails).eq('id', event.doctorId);
+          await table.update(event.doctorDetails).eq('user_id', event.doctorId);
           emit(DoctorsSuccessState());
         } else if (event is BlockUnblockDoctorEvent) {
           if (event.status == 'blocked') {

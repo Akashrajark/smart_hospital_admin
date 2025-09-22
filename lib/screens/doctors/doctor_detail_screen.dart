@@ -56,6 +56,8 @@ class DoctorDetailScreen extends StatelessWidget {
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 16),
+                    _buildInfoRow(context, Icons.date_range, 'Gender', formatValue(doctor['gender'])),
+                    const SizedBox(height: 16),
                     _buildInfoRow(context, Icons.date_range, 'Date of Birth', formatDate(doctor['dob'])),
                     const SizedBox(height: 12),
                     _buildInfoRow(

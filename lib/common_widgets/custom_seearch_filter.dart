@@ -83,20 +83,20 @@ class _CustomSearchFilterState extends State<CustomSearchFilter> {
             ),
           ),
         ),
-        Material(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-            side: BorderSide(color: theme.colorScheme.outline.withOpacity(0.12), width: 3),
-          ),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(10),
-            onTap: widget.onFilter,
-            child: Padding(
-              padding: const EdgeInsets.all(18.0),
-              child: Icon(Icons.filter_list, color: theme.colorScheme.secondary),
-            ),
-          ),
-        ),
+        // Material(
+        //   shape: RoundedRectangleBorder(
+        //     borderRadius: BorderRadius.circular(10),
+        //     side: BorderSide(color: theme.colorScheme.outline.withOpacity(0.12), width: 3),
+        //   ),
+        //   child: InkWell(
+        //     borderRadius: BorderRadius.circular(10),
+        //     onTap: widget.onFilter,
+        //     child: Padding(
+        //       padding: const EdgeInsets.all(18.0),
+        //       child: Icon(Icons.filter_list, color: theme.colorScheme.secondary),
+        //     ),
+        //   ),
+        // ),
       ],
     );
   }
