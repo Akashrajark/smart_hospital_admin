@@ -150,7 +150,6 @@ class _DoctorsScreenState extends State<DoctorsScreen> {
                     params['query'] = search;
                     getDoctors();
                   },
-                  onFilter: () {},
                 ),
                 const SizedBox(height: 16),
                 CupertinoSlidingSegmentedControl(
