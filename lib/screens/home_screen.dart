@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hospital_admin/common_widgets/custom_alert_dialog.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'login/login_screen.dart';
 import 'patients/patients_screen.dart';
@@ -59,19 +60,20 @@ class _HomeScreenState extends State<HomeScreen> {
             onPressed: () {
               showDialog(
                 context: context,
-                builder: (context) => AlertDialog(
-                  title: const Text('Logout'),
-                  content: const Text('Are you sure you want to logout?'),
-                  actions: [
-                    TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-                    ElevatedButton(
-                      onPressed: () {
-                        Supabase.instance.client.auth.signOut();
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));
-                      },
-                      child: const Text('Logout'),
-                    ),
-                  ],
+                builder: (context) => CustomAlertDialog(
+                  title: 'Logout',
+                  description: 'Are you sure you want to logout?',
+                  primaryButton: 'Yes',
+                  secondaryButton: 'No',
+                  onPrimaryPressed: () async {
+                    await Supabase.instance.client.auth.signOut();
+                    if (mounted) {
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (context) => const LoginScreen()),
+                        (route) => false,
+                      );
+                    }
+                  },
                 ),
               );
             },

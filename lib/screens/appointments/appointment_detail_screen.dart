@@ -1,177 +1,330 @@
 import 'package:flutter/material.dart';
-import '../../models/appointment.dart';
+import 'package:hospital_admin/screens/doctors/doctor_detail_screen.dart';
+import 'package:hospital_admin/screens/patients/patient_detail_screen.dart';
+import '../../util/format_functions.dart';
 
 class AppointmentDetailScreen extends StatelessWidget {
-  final Appointment appointment;
+  final Map<String, dynamic> appointmentDetails;
 
-  const AppointmentDetailScreen({super.key, required this.appointment});
-
-  Color _getStatusColor(BuildContext context) {
-    switch (appointment.status.toLowerCase()) {
-      case 'scheduled':
-        return Colors.orange;
-      case 'confirmed':
-        return Colors.blue;
-      case 'completed':
-        return Colors.green;
-      case 'cancelled':
-        return Colors.red;
-      default:
-        return Theme.of(context).colorScheme.primary;
-    }
-  }
-
-  String _formatDateTime(DateTime dateTime) {
-    final months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-    final day = dateTime.day;
-    final month = months[dateTime.month - 1];
-    final year = dateTime.year;
-
-    final hour = dateTime.hour == 0
-        ? 12
-        : dateTime.hour > 12
-        ? dateTime.hour - 12
-        : dateTime.hour;
-    final minute = dateTime.minute.toString().padLeft(2, '0');
-    final period = dateTime.hour >= 12 ? 'PM' : 'AM';
-
-    return '$month $day, $year at $hour:$minute $period';
-  }
+  const AppointmentDetailScreen({super.key, required this.appointmentDetails});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    CircleAvatar(
-                      radius: 40,
-                      backgroundColor: _getStatusColor(context),
-                      child: const Icon(Icons.calendar_today, color: Colors.white, size: 32),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      _formatDateTime(appointment.dateTime),
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: _getStatusColor(context).withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: _getStatusColor(context), width: 1),
+      appBar: AppBar(
+        title: Text(
+          'Appointment Details',
+          style: Theme.of(
+            context,
+          ).textTheme.titleLarge?.copyWith(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.w500),
+        ),
+      ),
+      body: ListView(
+        padding: EdgeInsets.all(20),
+        children: [
+          PatientCard(patientDetails: appointmentDetails['patients']),
+          SizedBox(height: 20),
+          DoctorCard(doctorDetails: appointmentDetails['doctors']),
+          SizedBox(height: 20),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        'Appointment Details',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w500),
                       ),
-                      child: Text(
-                        appointment.status,
-                        style: TextStyle(color: _getStatusColor(context), fontWeight: FontWeight.bold),
+                    ],
+                  ),
+                  Divider(color: Colors.grey.shade300),
+                  Text('Date Time', style: Theme.of(context).textTheme.bodyLarge),
+                  const SizedBox(height: 5),
+                  Text(
+                    formatDateTime(appointmentDetails['appointment_date']),
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  Divider(color: Colors.grey.shade300),
+                  Text('Reason for Visit', style: Theme.of(context).textTheme.bodyLarge),
+                  const SizedBox(height: 5),
+                  Text(
+                    formatValue(appointmentDetails['reason']),
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SizedBox(height: 20),
+
+          if (['prescribed', 'submitted', 'reviewed'].contains(appointmentDetails['status']))
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Prescription Details',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w500),
+                    ),
+                    Divider(color: Colors.grey.shade300),
+                    Text('Prescription', style: Theme.of(context).textTheme.bodyLarge),
+                    const SizedBox(height: 5),
+                    Text(
+                      formatValue(appointmentDetails['prescription']),
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    Divider(color: Colors.grey.shade300),
+                    Text('Xray Report', style: Theme.of(context).textTheme.bodyLarge),
+                    const SizedBox(height: 5),
+                    Text(
+                      formatValue(appointmentDetails['xray_needed']),
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          SizedBox(height: 20),
+          if (['submitted', 'reviewed'].contains(appointmentDetails['status']))
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          'Xray',
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w500),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    if (appointmentDetails['xray_url'] != null)
+                      InkWell(
+                        borderRadius: BorderRadius.circular(8.0),
+                        onTap: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) => Scaffold(
+                              appBar: AppBar(),
+                              body: InteractiveViewer(
+                                child: Center(child: Image.network(appointmentDetails['xray_url'])),
+                              ),
+                            ),
+                          );
+                        },
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: Image.network(
+                            appointmentDetails['xray_url'],
+                            height: 200,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    const SizedBox(height: 10),
+                    Text('Xray Report', style: Theme.of(context).textTheme.bodyLarge),
+                    const SizedBox(height: 5),
+                    Text(
+                      formatValue(appointmentDetails['xray_report']),
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          SizedBox(height: 20),
+
+          if (appointmentDetails['status'] == 'reviewed')
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Doctor Report',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w500),
+                    ),
+                    const SizedBox(height: 10),
+
+                    Text(
+                      formatValue(appointmentDetails['doctor_review']),
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class PatientCard extends StatelessWidget {
+  const PatientCard({super.key, required this.patientDetails});
+
+  final Map<String, dynamic> patientDetails;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => PatientDetailScreen(patient: patientDetails)),
+          );
+        },
+        borderRadius: BorderRadius.circular(8.0),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            spacing: 10,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8.0),
+                child: patientDetails['image_url'] != null
+                    ? Image.network(
+                        patientDetails['image_url'],
+                        height: 100,
+                        width: 100,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          height: 100,
+                          width: 100,
+                          decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(8.0)),
+                          child: Icon(Icons.person, size: 50, color: Colors.grey[600]),
+                        ),
+                      )
+                    : Container(
+                        height: 100,
+                        width: 100,
+                        decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(8.0)),
+                        child: Icon(Icons.person, size: 50, color: Colors.grey[600]),
+                      ),
+              ),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "#${patientDetails['id']}",
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.copyWith(color: Colors.grey, fontWeight: FontWeight.w700),
+                    ),
+                    Text(
+                      formatValue(patientDetails['full_name']),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.tertiary,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
                     Text(
-                      'Patient Information',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 16),
-                    _buildInfoRow(context, Icons.person, 'Name', appointment.patient.name),
-                    const SizedBox(height: 12),
-                    _buildInfoRow(context, Icons.cake, 'Age', '${appointment.patient.age} years'),
-                    const SizedBox(height: 12),
-                    _buildInfoRow(context, Icons.email, 'Email', appointment.patient.email),
-                    const SizedBox(height: 12),
-                    _buildInfoRow(context, Icons.phone, 'Phone', appointment.patient.phone),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Doctor Information',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 16),
-                    _buildInfoRow(context, Icons.medical_services, 'Doctor', appointment.doctor.name),
-                    const SizedBox(height: 12),
-                    _buildInfoRow(context, Icons.local_hospital, 'Specialty', appointment.doctor.specialty),
-                    const SizedBox(height: 12),
-                    _buildInfoRow(context, Icons.business, 'Department', appointment.doctor.department),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Notes', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 16),
-                    Text(
-                      appointment.notes.isNotEmpty ? appointment.notes : 'No notes available for this appointment.',
+                      formatValue(patientDetails['email']),
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: appointment.notes.isEmpty ? Theme.of(context).colorScheme.onSurfaceVariant : null,
+                        color: Theme.of(context).colorScheme.tertiary,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
-          ],
+              Icon(Icons.arrow_forward_ios_rounded, color: Colors.grey, size: 16),
+            ],
+          ),
         ),
       ),
     );
   }
+}
 
-  Widget _buildInfoRow(BuildContext context, IconData icon, String label, String value) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+class DoctorCard extends StatelessWidget {
+  const DoctorCard({super.key, required this.doctorDetails});
+
+  final Map<String, dynamic> doctorDetails;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: InkWell(
+        onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => DoctorDetailScreen(doctor: doctorDetails)));
+        },
+        borderRadius: BorderRadius.circular(8.0),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            spacing: 10,
             children: [
-              Text(
-                label,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  fontWeight: FontWeight.w500,
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8.0),
+                child: doctorDetails['image_url'] != null
+                    ? Image.network(
+                        doctorDetails['image_url'],
+                        height: 100,
+                        width: 100,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          height: 100,
+                          width: 100,
+                          decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(8.0)),
+                          child: Icon(Icons.person, size: 50, color: Colors.grey[600]),
+                        ),
+                      )
+                    : Container(
+                        height: 100,
+                        width: 100,
+                        decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(8.0)),
+                        child: Icon(Icons.person, size: 50, color: Colors.grey[600]),
+                      ),
+              ),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "#${doctorDetails['id']}",
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.copyWith(color: Colors.grey, fontWeight: FontWeight.w700),
+                    ),
+                    Text(
+                      formatValue(doctorDetails['full_name']),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.tertiary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    Text(
+                      formatValue(doctorDetails['email']),
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.tertiary,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 2),
-              Text(value, style: Theme.of(context).textTheme.bodyLarge),
+              Icon(Icons.arrow_forward_ios_rounded, color: Colors.grey, size: 16),
             ],
           ),
         ),
-      ],
+      ),
     );
   }
 }
