@@ -72,6 +72,7 @@ class _AddEditDoctorScreenState extends State<AddEditDoctorScreen> {
                 Text("Doctor Profile Image", style: Theme.of(context).textTheme.bodyLarge),
                 const SizedBox(height: 5),
                 CustomImagePickerButton(
+                  showRequiredError: true,
                   selectedImage: widget.doctorData?['image_url'],
                   onPick: (pick) {
                     doctorProfileImage = pick;
@@ -167,7 +168,7 @@ class _AddEditDoctorScreenState extends State<AddEditDoctorScreen> {
                     label: 'Save',
                     inverse: true,
                     onPressed: () {
-                      if (_formKey.currentState!.validate()) {
+                      if (_formKey.currentState!.validate() && doctorProfileImage != null) {
                         Map<String, dynamic> doctorData = {
                           'full_name': fullNameController.text.trim(),
                           'email': emailController.text.trim(),

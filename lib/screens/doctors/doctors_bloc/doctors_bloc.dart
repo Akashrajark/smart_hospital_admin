@@ -109,7 +109,8 @@ class DoctorsBloc extends Bloc<DoctorsEvent, DoctorsState> {
         }
       } catch (e, s) {
         Logger().e('$e\n$s');
-        emit(DoctorsFailureState(message: apiErrorMessage));
+        // emit(DoctorsFailureState(message: apiErrorMessage));
+        emit(DoctorsFailureState(message: e.toString()));
       }
     });
   }
